@@ -24,7 +24,7 @@ func main() {
 
 func handleConnection(conn net.Conn) {
 	msg, n, err := receiveMsg(conn)
-	if err != nil	{
+	if err != nil {
 		fmt.Println(" handleConnection: ", err)
 	}
 	fmt.Printf("%v bytes read\n", n)
