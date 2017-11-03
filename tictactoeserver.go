@@ -29,6 +29,7 @@ func main() {
 
 func playTicTacToe(conn net.Conn) (int, error) {
 	const SERVERSYMBOL = 'O'
+	const CLIENTSYMBOL = 'X'
 	squares := []int{0, 1, 2, 4, 5, 6, 8, 9, 10}
 	var rBoard string
 	var sBoard string = tictactoe.GetEmptyBoard()
@@ -52,6 +53,16 @@ func playTicTacToe(conn net.Conn) (int, error) {
 		movCnt, _ := tictactoe.GetMoveDifference(sBoard, rBoard)
 		if movCnt != 1	{
 			return n, fmt.Errorf("playTicTacToe() client made %d moves", movCnt)
+		}
+
+		if tictactoe.HasWon(rBoard, CLIENTSYMBOL)	{
+			// check is the opponent has won
+			fmt.Println("Client won!")
+			n, err = conn.Write([]byte("END"))
+			if err != nil {
+				return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
+			}
+			break
 		}
 
 		sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
