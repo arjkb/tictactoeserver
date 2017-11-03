@@ -33,6 +33,7 @@ func playTicTacToe(conn net.Conn) (int, error){
 	const SERVERSYMBOL = 'O'
 	squares := []int{0,1,2,4,5,6,8,9,10}
 	var board string
+	var movedBoard string
 
 	var n int
 	var err error
@@ -44,7 +45,7 @@ func playTicTacToe(conn net.Conn) (int, error){
 		board = string(bytesFromClient)
 		fmt.Printf(" RECEIVED: %q\n", board)
 
-		board, err = tictactoe.MakeRandomMove(board, squares, SERVERSYMBOL)
+		movedBoard, err = tictactoe.MakeRandomMove(board, squares, SERVERSYMBOL)
 		if err != nil	{
 			n, err = conn.Write([]byte("END"))
 			if err != nil	{
@@ -52,11 +53,11 @@ func playTicTacToe(conn net.Conn) (int, error){
 			}
 		}
 
-		n, err = conn.Write([]byte(board))
+		n, err = conn.Write([]byte(movedBoard))
 		if err != nil	{
-			return n, fmt.Errorf("playTicTacToe error while writing %v", board)
+			return n, fmt.Errorf("playTicTacToe error while writing %v", movedBoard)
 		}
-		fmt.Printf(" SENT: %q\n", board)
+		fmt.Printf(" SENT: %q\n", movedBoard)
 	}
 }
 
