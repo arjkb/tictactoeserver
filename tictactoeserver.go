@@ -65,6 +65,15 @@ func playTicTacToe(conn net.Conn) (int, error) {
 			break
 		}
 
+		// check if client can win in the next move
+		var patternArray [3]int
+		for _, pattern := range(tictactoe.WinPatterns)	{
+			copy(patternArray[:], pattern)
+			winnable, winMove, _ := tictactoe.IsWinnable(rBoard, CLIENTSYMBOL, patternArray)
+			if winnable	{
+				fmt.Println("winnable! ", winMove, rBoard)
+			}
+		}
 		sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
 		if err != nil {
 			n, err = conn.Write([]byte("END"))
