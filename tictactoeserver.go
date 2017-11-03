@@ -49,6 +49,7 @@ func playTicTacToe(conn net.Conn) (int, error){
 			if err != nil	{
 				return n, fmt.Errorf("playTicTacToe error while writing %v", board)
 			}
+			break
 		}
 
 		n, err = conn.Write([]byte(movedBoard))
@@ -57,4 +58,6 @@ func playTicTacToe(conn net.Conn) (int, error){
 		}
 		fmt.Printf(" SENT: %q\n", movedBoard)
 	}
+	
+	return 0, nil
 }
