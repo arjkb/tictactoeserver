@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/arjunkrishnababu96/tictactoe"
+	"log"
 	"net"
 )
 
@@ -19,36 +21,43 @@ func main() {
 		fmt.Println(" for loop: ", err)
 	}
 
-	handleConnection(conn)
+	n, err := playTicTacToe(conn)
+	if err != nil {
+		log.Fatalf(" main() n=%v: %v", n, err)
+	}
 }
 
-func handleConnection(conn net.Conn) {
-	msg, n, err := receiveMsg(conn)
-	if err != nil {
-		fmt.Println(" handleConnection: ", err)
+func playTicTacToe(conn net.Conn) (int, error) {
+	const SERVERSYMBOL = 'O'
+	squares := []int{0, 1, 2, 4, 5, 6, 8, 9, 10}
+	var board string
+	var movedBoard string
+
+	var n int
+	var err error
+
+	for {
+		bytesFromClient := make([]byte, 11)
+		n, err = conn.Read(bytesFromClient)
+
+		board = string(bytesFromClient)
+		fmt.Printf(" RECEIVED: %q\n", board)
+
+		movedBoard, err = tictactoe.MakeRandomMove(board, squares, SERVERSYMBOL)
+		if err != nil {
+			n, err = conn.Write([]byte("END"))
+			if err != nil {
+				return n, fmt.Errorf("playTicTacToe error while writing %v", board)
+			}
+			break
+		}
+
+		n, err = conn.Write([]byte(movedBoard))
+		if err != nil {
+			return n, fmt.Errorf("playTicTacToe error while writing %v", movedBoard)
+		}
+		fmt.Printf(" SENT: %q\n", movedBoard)
 	}
-	fmt.Printf("%v bytes read\n", n)
-	fmt.Println("Client says:")
-	fmt.Println(msg)
 
-	n, err = sendMsg(conn, "Greetings from server!")
-	conn.Close()
-}
-
-func receiveMsg(conn net.Conn) (msg string, n int, err error) {
-	var msg_bytes = make([]byte, 100)
-	n, err = conn.Read(msg_bytes)
-	if err != nil {
-		return msg, n, fmt.Errorf(" receiveMsg: %v", err)
-	}
-
-	return string(msg_bytes), n, err
-}
-
-func sendMsg(conn net.Conn, msg string) (n int, err error) {
-	n, err = conn.Write([]byte(msg))
-	if err != nil {
-		return n, fmt.Errorf(" error while writing: ", err)
-	}
-	return n, nil
+	return 0, nil
 }
