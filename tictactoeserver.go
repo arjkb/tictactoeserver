@@ -29,34 +29,76 @@ func main() {
 
 func playTicTacToe(conn net.Conn) (int, error) {
 	const SERVERSYMBOL = 'O'
+	const CLIENTSYMBOL = 'X'
 	squares := []int{0, 1, 2, 4, 5, 6, 8, 9, 10}
-	var board string
-	var movedBoard string
+	var rBoard string
+	var sBoard string = tictactoe.GetEmptyBoard()
 
 	var n int
 	var err error
 
+	var moved bool
+
 	for {
+		moved = false
 		bytesFromClient := make([]byte, 11)
 		n, err = conn.Read(bytesFromClient)
+		if err != nil	{
+			return n, fmt.Errorf("playTicTacToe() Error reading from client %v", err)
+		}
 
-		board = string(bytesFromClient)
-		fmt.Printf(" RECEIVED: %q\n", board)
+		rBoard = string(bytesFromClient)
+		if !tictactoe.IsValidBoard(rBoard)	{
+			return n, fmt.Errorf("playTicTacToe() client sent invalid board %v", rBoard)
+		}
+		fmt.Printf(" R: %q\n", rBoard)
 
-		movedBoard, err = tictactoe.MakeRandomMove(board, squares, SERVERSYMBOL)
-		if err != nil {
+		movCnt, _ := tictactoe.GetMoveDifference(sBoard, rBoard)
+		if movCnt != 1	{
+			return n, fmt.Errorf("playTicTacToe() client made %d moves", movCnt)
+		}
+
+		if tictactoe.HasWon(rBoard, CLIENTSYMBOL)	{
+			// check is the opponent has won
+			fmt.Println("Client won!")
 			n, err = conn.Write([]byte("END"))
 			if err != nil {
-				return n, fmt.Errorf("playTicTacToe error while writing %v", board)
+				return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
 			}
 			break
 		}
 
-		n, err = conn.Write([]byte(movedBoard))
-		if err != nil {
-			return n, fmt.Errorf("playTicTacToe error while writing %v", movedBoard)
+		// check if client can win in the next move
+		var patternArray [3]int
+		for _, pattern := range(tictactoe.WinPatterns)	{
+			copy(patternArray[:], pattern)
+			winnable, _, _ := tictactoe.IsWinnable(rBoard, CLIENTSYMBOL, patternArray)
+			if winnable	{
+				// fmt.Println("winnable! ", winMove, rBoard)
+				sBoard, err = tictactoe.BlockWinMove(rBoard, patternArray, SERVERSYMBOL)
+				if err != nil {
+					return n, fmt.Errorf("Block opp. win playTicTacToe error while writing %v", sBoard)
+				}
+				moved = true
+			}
 		}
-		fmt.Printf(" SENT: %q\n", movedBoard)
+
+		if !moved	{
+			sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
+			if err != nil {
+				n, err = conn.Write([]byte("END"))
+				if err != nil {
+					return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
+				}
+				break
+			}
+		}
+
+		n, err = conn.Write([]byte(sBoard))
+		if err != nil {
+			return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
+		}
+		fmt.Printf(" S: %q\n", sBoard)
 	}
 
 	return 0, nil
