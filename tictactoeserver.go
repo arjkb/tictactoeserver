@@ -58,6 +58,13 @@ func playTicTacToe(conn net.Conn) (int, error) {
 			return n, fmt.Errorf("playTicTacToe() client made %d moves", movCnt)
 		}
 
+		// if tictactoe.HasWon(rBoard, CLIENTSYMBOL)	{
+		// 	fmt.Println("Client won!")
+		// 	sBoard = "END"
+		// } else if condition {
+		//
+		// }
+
 		if tictactoe.HasWon(rBoard, CLIENTSYMBOL)	{
 			// check is the opponent has won
 			fmt.Println("Client won!")
@@ -68,13 +75,19 @@ func playTicTacToe(conn net.Conn) (int, error) {
 			break
 		}
 
+		if win, ptrn := tictactoe.CanWinNext(rBoard, SERVERSYMBOL); win == true	{
+			fmt.Println("Server can win!")
+			sBoard, _ = tictactoe.MakeWinMove(rBoard, ptrn, SERVERSYMBOL)
+			moved = true
+		}
+
 		// check if client can win in the next move
 		var patternArray [3]int
 		for _, pattern := range(tictactoe.WinPatterns)	{
 			copy(patternArray[:], pattern)
-			winnable, _, _ := tictactoe.IsWinnable(rBoard, CLIENTSYMBOL, patternArray)
+			winnable, _ := tictactoe.IsWinnable(rBoard, CLIENTSYMBOL, patternArray)
 			if winnable	{
-				// fmt.Println("winnable! ", winMove, rBoard)
+				// fmt.Println("client can win! ", patternArray, rBoard)
 				sBoard, err = tictactoe.BlockWinMove(rBoard, patternArray, SERVERSYMBOL)
 				if err != nil {
 					return n, fmt.Errorf("Block opp. win playTicTacToe error while writing %v", sBoard)
