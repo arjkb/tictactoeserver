@@ -30,7 +30,8 @@ func main() {
 func playTicTacToe(conn net.Conn) (int, error) {
 	const SERVERSYMBOL = 'O'
 	squares := []int{0, 1, 2, 4, 5, 6, 8, 9, 10}
-	var rBoard, sBoard string
+	var rBoard string
+	var sBoard string = tictactoe.GetEmptyBoard()
 
 	var n int
 	var err error
@@ -47,6 +48,11 @@ func playTicTacToe(conn net.Conn) (int, error) {
 			return n, fmt.Errorf("playTicTacToe() client sent invalid board %v", rBoard)
 		}
 		fmt.Printf(" R: %q\n", rBoard)
+
+		movCnt, _ := tictactoe.GetMoveDifference(sBoard, rBoard)
+		if movCnt != 1	{
+			return n, fmt.Errorf("playTicTacToe() client made %d moves", movCnt)
+		}
 
 		sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
 		if err != nil {
