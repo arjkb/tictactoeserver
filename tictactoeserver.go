@@ -46,22 +46,22 @@ func playTicTacToe(conn net.Conn) (int, error) {
 	for {
 		bytesFromClient := make([]byte, 11)
 		n, err = conn.Read(bytesFromClient)
-		if err != nil	{
+		if err != nil {
 			return n, fmt.Errorf("playTicTacToe() Error reading from client %v", err)
 		}
 
 		rBoard = string(bytesFromClient)
-		if !tictactoe.IsValidBoard(rBoard)	{
+		if !tictactoe.IsValidBoard(rBoard) {
 			return n, fmt.Errorf("playTicTacToe() client sent invalid board %v", rBoard)
 		}
 		fmt.Printf(" R: %q\n", rBoard)
 
 		movCnt, _ := tictactoe.GetMoveDifference(sBoard, rBoard)
-		if movCnt != 1	{
+		if movCnt != 1 {
 			return n, fmt.Errorf("playTicTacToe() client made %d moves", movCnt)
 		}
 
-		if tictactoe.HasWon(rBoard, CLIENTSYMBOL)	{
+		if tictactoe.HasWon(rBoard, CLIENTSYMBOL) {
 			// check if the opponent has won
 			sBoard = CLIENTWON
 			clientWon = true
@@ -87,7 +87,7 @@ func playTicTacToe(conn net.Conn) (int, error) {
 		}
 		fmt.Printf(" S: %q\n", sBoard)
 
-		if sBoard == "END" || serverWon || clientWon	{
+		if sBoard == "END" || serverWon || clientWon {
 			break
 		}
 	}
