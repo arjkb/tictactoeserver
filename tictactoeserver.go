@@ -30,7 +30,7 @@ func main() {
 func playTicTacToe(conn net.Conn) (int, error) {
 	const SERVERSYMBOL = 'O'
 	squares := []int{0, 1, 2, 4, 5, 6, 8, 9, 10}
-	var board string
+	var rBoard, sBoard string
 
 	var n int
 	var err error
@@ -42,23 +42,27 @@ func playTicTacToe(conn net.Conn) (int, error) {
 			return n, fmt.Errorf("playTicTacToe() Error reading from client %v", err)
 		}
 
-		board = string(bytesFromClient)
-		fmt.Printf(" R: %q\n", board)
+		rBoard = string(bytesFromClient)
+		if !tictactoe.IsValidBoard(rBoard)	{
+			return n, fmt.Errorf("playTicTacToe() client sent invalid board %v", rBoard)
+		}
+		fmt.Printf(" R: %q\n", rBoard)
 
-		board, err = tictactoe.MakeRandomMove(board, squares, SERVERSYMBOL)
+		sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
 		if err != nil {
 			n, err = conn.Write([]byte("END"))
 			if err != nil {
-				return n, fmt.Errorf("playTicTacToe error while writing %v", board)
+				return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
 			}
 			break
 		}
 
-		n, err = conn.Write([]byte(board))
+
+		n, err = conn.Write([]byte(sBoard))
 		if err != nil {
-			return n, fmt.Errorf("playTicTacToe error while writing %v", board)
+			return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
 		}
-		fmt.Printf(" S: %q\n", board)
+		fmt.Printf(" S: %q\n", sBoard)
 	}
 
 	return 0, nil
