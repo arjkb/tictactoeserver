@@ -37,7 +37,10 @@ func playTicTacToe(conn net.Conn) (int, error) {
 	var n int
 	var err error
 
+	var moved bool
+
 	for {
+		moved = false
 		bytesFromClient := make([]byte, 11)
 		n, err = conn.Read(bytesFromClient)
 		if err != nil	{
@@ -74,7 +77,12 @@ func playTicTacToe(conn net.Conn) (int, error) {
 				fmt.Println("winnable! ", winMove, rBoard)
 			}
 		}
-		sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
+
+		if !moved	{
+			sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
+			moved = false
+		}
+
 		if err != nil {
 			n, err = conn.Write([]byte("END"))
 			if err != nil {
