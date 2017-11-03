@@ -38,6 +38,9 @@ func playTicTacToe(conn net.Conn) (int, error) {
 	for {
 		bytesFromClient := make([]byte, 11)
 		n, err = conn.Read(bytesFromClient)
+		if err != nil	{
+			return n, fmt.Errorf("playTicTacToe() Error reading from client %v", err)
+		}
 
 		board = string(bytesFromClient)
 		fmt.Printf(" R: %q\n", board)
