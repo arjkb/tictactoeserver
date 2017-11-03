@@ -72,25 +72,27 @@ func playTicTacToe(conn net.Conn) (int, error) {
 		var patternArray [3]int
 		for _, pattern := range(tictactoe.WinPatterns)	{
 			copy(patternArray[:], pattern)
-			winnable, winMove, _ := tictactoe.IsWinnable(rBoard, CLIENTSYMBOL, patternArray)
+			winnable, _, _ := tictactoe.IsWinnable(rBoard, CLIENTSYMBOL, patternArray)
 			if winnable	{
-				fmt.Println("winnable! ", winMove, rBoard)
+				// fmt.Println("winnable! ", winMove, rBoard)
+				sBoard, err = tictactoe.BlockWinMove(rBoard, patternArray, SERVERSYMBOL)
+				if err != nil {
+					return n, fmt.Errorf("Block opp. win playTicTacToe error while writing %v", sBoard)
+				}
+				moved = true
 			}
 		}
 
 		if !moved	{
 			sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
-			moved = false
-		}
-
-		if err != nil {
-			n, err = conn.Write([]byte("END"))
 			if err != nil {
-				return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
+				n, err = conn.Write([]byte("END"))
+				if err != nil {
+					return n, fmt.Errorf("playTicTacToe error while writing %v", sBoard)
+				}
+				break
 			}
-			break
 		}
-
 
 		n, err = conn.Write([]byte(sBoard))
 		if err != nil {
