@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net"
+	"log"
+	"github.com/arjunkrishnababu96/tictactoe"
 )
 
 func main() {
@@ -19,7 +21,43 @@ func main() {
 		fmt.Println(" for loop: ", err)
 	}
 
-	handleConnection(conn)
+	n, err := playTicTacToe(conn)
+	if err != nil	{
+		log.Fatalf(" main() n=%v: %v", n, err)
+	}
+
+	// handleConnection(conn)
+}
+
+func playTicTacToe(conn net.Conn) (int, error){
+	const SERVERSYMBOL = 'O'
+	squares := []int{0,1,2,4,5,6,8,9,10}
+	var board string
+
+	var n int
+	var err error
+
+	for {
+		bytesFromClient := make([]byte, 11)
+		n, err = conn.Read(bytesFromClient)
+
+		board = string(bytesFromClient)
+		fmt.Printf(" RECEIVED: %q\n", board)
+
+		board, err = tictactoe.MakeRandomMove(board, squares, SERVERSYMBOL)
+		if err != nil	{
+			n, err = conn.Write([]byte("END"))
+			if err != nil	{
+				return n, fmt.Errorf("playTicTacToe error while writing %v", board)
+			}
+		}
+
+		n, err = conn.Write([]byte(board))
+		if err != nil	{
+			return n, fmt.Errorf("playTicTacToe error while writing %v", board)
+		}
+		fmt.Printf(" SENT: %q\n", board)
+	}
 }
 
 func handleConnection(conn net.Conn) {
@@ -31,7 +69,7 @@ func handleConnection(conn net.Conn) {
 	fmt.Println("Client says:")
 	fmt.Println(msg)
 
-	n, err = sendMsg(conn, "Greetings from server!")
+	n, err = sendMsg(conn, "END")
 	conn.Close()
 }
 
