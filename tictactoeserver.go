@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"net"
-	"log"
 	"github.com/arjunkrishnababu96/tictactoe"
+	"log"
+	"net"
 )
 
 func main() {
@@ -22,14 +22,14 @@ func main() {
 	}
 
 	n, err := playTicTacToe(conn)
-	if err != nil	{
+	if err != nil {
 		log.Fatalf(" main() n=%v: %v", n, err)
 	}
 }
 
-func playTicTacToe(conn net.Conn) (int, error){
+func playTicTacToe(conn net.Conn) (int, error) {
 	const SERVERSYMBOL = 'O'
-	squares := []int{0,1,2,4,5,6,8,9,10}
+	squares := []int{0, 1, 2, 4, 5, 6, 8, 9, 10}
 	var board string
 	var movedBoard string
 
@@ -44,20 +44,20 @@ func playTicTacToe(conn net.Conn) (int, error){
 		fmt.Printf(" RECEIVED: %q\n", board)
 
 		movedBoard, err = tictactoe.MakeRandomMove(board, squares, SERVERSYMBOL)
-		if err != nil	{
+		if err != nil {
 			n, err = conn.Write([]byte("END"))
-			if err != nil	{
+			if err != nil {
 				return n, fmt.Errorf("playTicTacToe error while writing %v", board)
 			}
 			break
 		}
 
 		n, err = conn.Write([]byte(movedBoard))
-		if err != nil	{
+		if err != nil {
 			return n, fmt.Errorf("playTicTacToe error while writing %v", movedBoard)
 		}
 		fmt.Printf(" SENT: %q\n", movedBoard)
 	}
-	
+
 	return 0, nil
 }
