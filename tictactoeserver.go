@@ -28,13 +28,6 @@ func main() {
 }
 
 func playTicTacToe(conn net.Conn) (int, error) {
-	const CLIENTWON = "client won"
-	const SERVERWON = "server won"
-	const SERVERSYMBOL = 'O'
-	const CLIENTSYMBOL = 'X'
-
-	squares := []int{0, 1, 2, 4, 5, 6, 8, 9, 10}
-
 	var rBoard string
 	var sBoard string = tictactoe.GetEmptyBoard()
 
@@ -62,20 +55,20 @@ InfiniteLoop:
 			return n, fmt.Errorf("playTicTacToe() client made %d moves", movCnt)
 		}
 
-		if tictactoe.HasWon(rBoard, CLIENTSYMBOL) {
+		if tictactoe.HasWon(rBoard, tictactoe.CLIENTSYMBOL) {
 			// check if the opponent has won
-			sBoard = CLIENTWON
+			sBoard = tictactoe.CLIENTWON
 			clientWon = true
-		} else if win, ptrn := tictactoe.CanWinNext(rBoard, SERVERSYMBOL); win {
+		} else if win, ptrn := tictactoe.CanWinNext(rBoard, tictactoe.SERVERSYMBOL); win {
 			// check if we can win in one move; make that move
-			sBoard, _ = tictactoe.MakeWinMove(rBoard, ptrn, SERVERSYMBOL)
+			sBoard, _ = tictactoe.MakeWinMove(rBoard, ptrn, tictactoe.SERVERSYMBOL)
 			serverWon = true
-		} else if win, ptrn := tictactoe.CanWinNext(rBoard, CLIENTSYMBOL); win {
+		} else if win, ptrn := tictactoe.CanWinNext(rBoard, tictactoe.CLIENTSYMBOL); win {
 			// check if opponent can win in one move; block that move
-			sBoard, _ = tictactoe.BlockWinMove(rBoard, ptrn, SERVERSYMBOL)
+			sBoard, _ = tictactoe.BlockWinMove(rBoard, ptrn, tictactoe.SERVERSYMBOL)
 		} else {
 			// make a random move
-			sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
+			sBoard, err = tictactoe.MakeRandomMove(rBoard, tictactoe.AllSquares, tictactoe.SERVERSYMBOL)
 			if err != nil {
 				// error indicates there are no more free positions
 				// happens only when there is a tie
