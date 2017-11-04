@@ -77,8 +77,9 @@ InfiniteLoop:
 			// make a random move
 			sBoard, err = tictactoe.MakeRandomMove(rBoard, squares, SERVERSYMBOL)
 			if err != nil {
-				// error indicates there are no more free positions; send END signal
-				sBoard = "END"
+				// error indicates there are no more free positions
+				// happens only when there is a tie
+				sBoard = tictactoe.TIE
 			}
 		}
 
