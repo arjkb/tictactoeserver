@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/arjunkrishnababu96/tictactoe"
 	"net"
+	"os"
 	"strings"
 )
 
 func main() {
 
-	l, err := net.Listen("tcp", "127.0.0.1:7775")
+	address := os.Args[1]
+	l, err := net.Listen("tcp", address)
 	if err != nil {
 		fmt.Println(" main: ", err)
 	}
