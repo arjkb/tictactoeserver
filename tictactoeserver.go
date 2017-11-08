@@ -3,31 +3,30 @@ package main
 import (
 	"fmt"
 	"github.com/arjunkrishnababu96/tictactoe"
-	"log"
 	"net"
 )
 
 func main() {
-	l, err := net.Listen("tcp", "127.0.0.1:7776")
+
+	l, err := net.Listen("tcp", "127.0.0.1:7775")
 	if err != nil {
 		fmt.Println(" main: ", err)
 	}
 	defer l.Close()
 	fmt.Println("Listening on", l.Addr())
 
-	conn, err := l.Accept()
-	defer conn.Close()
-	if err != nil {
-		fmt.Println(" for loop: ", err)
-	}
-
-	n, err := playTicTacToe(conn)
-	if err != nil {
-		log.Fatalf(" main() n=%v: %v", n, err)
+	for {
+		conn, err := l.Accept()
+		// defer conn.Close()
+		if err != nil {
+			fmt.Println(" for loop: ", err)
+		}
+		go playTicTacToe(conn)
 	}
 }
 
 func playTicTacToe(conn net.Conn) (int, error) {
+	defer conn.Close()
 	var rBoard string
 	var sBoard string = tictactoe.GetEmptyBoard()
 
@@ -66,6 +65,31 @@ InfiniteLoop:
 		} else if win, ptrn := tictactoe.CanWinNext(rBoard, tictactoe.CLIENTSYMBOL); win {
 			// check if opponent can win in one move; block that move
 			sBoard, _ = tictactoe.BlockWinMove(rBoard, ptrn, tictactoe.SERVERSYMBOL)
+		} else if tictactoe.IsFree(rBoard, 5) {
+			// can play center
+			sBoard, _ = tictactoe.MakeMove(rBoard, 5, tictactoe.SERVERSYMBOL)
+			fmt.Println("playing center! %v %v", rBoard, sBoard)
+
+			// DOWN: Play opposite corner
+		} else if rBoard[0] == tictactoe.CLIENTSYMBOL && tictactoe.IsFree(rBoard, 10) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 10, tictactoe.SERVERSYMBOL)
+		} else if rBoard[2] == tictactoe.CLIENTSYMBOL && tictactoe.IsFree(rBoard, 8) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 8, tictactoe.SERVERSYMBOL)
+		} else if rBoard[8] == tictactoe.CLIENTSYMBOL && tictactoe.IsFree(rBoard, 2) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 2, tictactoe.SERVERSYMBOL)
+		} else if rBoard[10] == tictactoe.CLIENTSYMBOL && tictactoe.IsFree(rBoard, 0) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 0, tictactoe.SERVERSYMBOL)
+
+			// DOWN: Play empty corner
+		} else if tictactoe.IsFree(rBoard, 0) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 0, tictactoe.SERVERSYMBOL)
+		} else if tictactoe.IsFree(rBoard, 2) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 2, tictactoe.SERVERSYMBOL)
+		} else if tictactoe.IsFree(rBoard, 8) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 8, tictactoe.SERVERSYMBOL)
+		} else if tictactoe.IsFree(rBoard, 10) {
+			sBoard, _ = tictactoe.MakeMove(rBoard, 10, tictactoe.SERVERSYMBOL)
+
 		} else {
 			// make a random move
 			sBoard, err = tictactoe.MakeRandomMove(rBoard, tictactoe.AllSquares, tictactoe.SERVERSYMBOL)
