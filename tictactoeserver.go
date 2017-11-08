@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/arjunkrishnababu96/tictactoe"
 	"net"
+	"strings"
 )
 
 func main() {
@@ -44,6 +45,11 @@ InfiniteLoop:
 		}
 
 		rBoard = string(bytesFromClient)
+		if strings.Contains(rBoard, tictactoe.TIE)	{
+			fmt.Println("tie")
+			break
+		}
+
 		if !tictactoe.IsValidBoard(rBoard) {
 			return n, fmt.Errorf("playTicTacToe() client sent invalid board %v", rBoard)
 		}
