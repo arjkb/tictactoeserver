@@ -3,31 +3,30 @@ package main
 import (
 	"fmt"
 	"github.com/arjunkrishnababu96/tictactoe"
-	"log"
 	"net"
 )
 
 func main() {
-	l, err := net.Listen("tcp", "127.0.0.1:7776")
+
+	l, err := net.Listen("tcp", "127.0.0.1:7775")
 	if err != nil {
 		fmt.Println(" main: ", err)
 	}
 	defer l.Close()
 	fmt.Println("Listening on", l.Addr())
 
-	conn, err := l.Accept()
-	defer conn.Close()
-	if err != nil {
-		fmt.Println(" for loop: ", err)
-	}
-
-	n, err := playTicTacToe(conn)
-	if err != nil {
-		log.Fatalf(" main() n=%v: %v", n, err)
+	for {
+		conn, err := l.Accept()
+		// defer conn.Close()
+		if err != nil {
+			fmt.Println(" for loop: ", err)
+		}
+		go playTicTacToe(conn)
 	}
 }
 
 func playTicTacToe(conn net.Conn) (int, error) {
+	defer conn.Close()
 	var rBoard string
 	var sBoard string = tictactoe.GetEmptyBoard()
 
