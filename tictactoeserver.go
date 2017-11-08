@@ -3,18 +3,17 @@ package main
 import (
 	"fmt"
 	"github.com/arjunkrishnababu96/tictactoe"
-	// "log"
 	"net"
 )
 
 func main() {
 
-		l, err := net.Listen("tcp", "127.0.0.1:7775")
-		if err != nil {
-			fmt.Println(" main: ", err)
-		}
-		defer l.Close()
-		fmt.Println("Listening on", l.Addr())
+	l, err := net.Listen("tcp", "127.0.0.1:7775")
+	if err != nil {
+		fmt.Println(" main: ", err)
+	}
+	defer l.Close()
+	fmt.Println("Listening on", l.Addr())
 
 	for {
 		conn, err := l.Accept()
