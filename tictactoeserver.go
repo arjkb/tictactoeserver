@@ -47,7 +47,7 @@ InfiniteLoop:
 		}
 
 		rBoard = string(bytesFromClient)
-		if strings.Contains(rBoard, tictactoe.TIE)	{
+		if strings.Contains(rBoard, tictactoe.TIE) {
 			fmt.Println("tie")
 			break
 		}
