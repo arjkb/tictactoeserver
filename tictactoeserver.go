@@ -38,6 +38,8 @@ func playTicTacToe(conn net.Conn) (int, error) {
 
 	var clientWon, serverWon bool
 
+	fmt.Println(" Accepted connection from ", conn.RemoteAddr())
+
 InfiniteLoop:
 	for {
 		bytesFromClient := make([]byte, 11)
